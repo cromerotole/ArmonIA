@@ -1,0 +1,7 @@
+numpy>=1.26
+pandas>=2.0
+pyarrow>=14
+tqdm>=4.66
+scikit-learn>=1.3
+torch>=2.2,<2.5
+gradio>=4.31
