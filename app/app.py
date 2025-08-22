@@ -204,39 +204,58 @@ def init_buttons():
     labels, top = labels_topk([], 1.0, None)
     return [*fanout_button_labels(labels), top]
 
-with gr.Blocks(title="ArmonIA - Predicción de acordes") as demo:
+with gr.Blocks(title="armonIA — Chord Prediction") as demo:
+    # --- CSS para grid 2x5 estable ---
     gr.HTML("""
     <style>
     #row_top1, #row_top2 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
     #row_top1 button, #row_top2 button { width: 100%; }
+    .title-center { text-align:center; margin: 0 0 6px 0; }
+    .subtitle { text-align:center; opacity:.85; margin: 0 0 16px 0; }
+    .desc { font-size:0.95rem; line-height:1.4rem; }
     </style>
     """)
-    gr.Markdown("### 🧩 Sugeridor de acordes (Transformer)")
 
+    # --- Título + descripción bilingüe ---
+    gr.HTML("""
+    <h1 class="title-center">armonIA</h1>
+    <h3 class="subtitle">Predicción de acordes con Transformer · Transformer‑based Chord Prediction</h3>
+    <div class="desc">
+      <p><b>ES:</b> Construye una secuencia de acordes y el modelo sugerirá el siguiente. Selecciona raíz y variante, añade desde el Top‑10 o manualmente, ajusta la temperatura y explora las opciones más probables.</p>
+      <p><b>EN:</b> Build a chord sequence and the model will suggest the next one. Choose root and quality, add from the Top‑10 or manually, tweak temperature, and explore the most likely options.</p>
+    </div>
+    """)
+
+    # --- Controles y layout (idéntico a tu versión previa) ---
     with gr.Row():
+        # Izquierda: selects + acciones
         with gr.Column(scale=6):
-            root_dd = gr.Dropdown([r for r,_ in ROOT_DISPLAY], value="C (Do)", label="Raíz")
-            var_dd  = gr.Dropdown([v for v,_ in VARIANTS],   value="mayor",  label="Variante")
+            root_dd = gr.Dropdown([r for r,_ in ROOT_DISPLAY], value="C (Do)", label="Raíz / Root")
+            var_dd  = gr.Dropdown([v for v,_ in VARIANTS],   value="mayor",  label="Variante / Quality")
             with gr.Row():
-                btn_add = gr.Button("Añadir", variant="primary")
-                btn_pop = gr.Button("Borrar")
+                btn_add = gr.Button("Añadir / Add", variant="primary")
+                btn_pop = gr.Button("Borrar / Undo")
                 btn_rst = gr.Button("Reset")
+        # Derecha: Top-10 (2x5) + barra "Secuencia construida"
         with gr.Column(scale=6):
-            gr.Markdown("#### Añadir")
+            gr.Markdown("#### Añadir / Add")
             with gr.Row(elem_id="row_top1"):
                 btns_row1 = [gr.Button("", scale=1) for _ in range(5)]
             with gr.Row(elem_id="row_top2"):
                 btns_row2 = [gr.Button("", scale=1) for _ in range(5)]
             btns = btns_row1 + btns_row2
-            seq_bar = gr.Textbox(value="", label="Secuencia construida", interactive=False)
+            seq_bar = gr.Textbox(value="", label="Secuencia construida / Built sequence", interactive=False)
 
+    # Slider de temperatura
     with gr.Row():
         temp = gr.Slider(0.1, 2.0, value=1.0, step=0.05, label="Temperature")
 
+    # Estados
     seq_state = gr.State([])      # acordes en tonalidad original
     key_state = gr.State(None)    # intervalo fijo (se fija al primer acorde)
     top_state = gr.State([])      # [(ch, prob), ...]
 
+    # Eventos y lógica (sin cambios)
     demo.load(init_buttons, inputs=None, outputs=[*btns, top_state])
 
     btn_add.click(add_by_dropdown,
@@ -261,5 +280,5 @@ with gr.Blocks(title="ArmonIA - Predicción de acordes") as demo:
                 outputs=[*btns, top_state])
 
 if __name__ == "__main__":
-    # Para Codespaces o local; Gradio mostrará la URL/puerto. Cambia share=True si quieres link público rápido.
     demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
+
