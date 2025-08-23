@@ -173,7 +173,7 @@ ROOT_LABEL_TO_CANON = {
 # === Variantes (diccionario exacto y ordenado) ===
 # Orden: mayor, m, 7, maj7, dim, dim7, aug, add9, madd9
 VARIANTS = [
-    ("mayor",  "()"),     # mayor -> sin sufijo
+    ("mayor",  ""),     # mayor -> sin sufijo
     ("menor",  "m"),    # menor
     ("7",      "7"),
     ("m7",     "m7"),
