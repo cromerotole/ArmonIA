@@ -28,12 +28,18 @@ source .venv/bin/activate   # Linux/macOS
 .venv\Scripts\activate      # Windows
 Yo lo que hago es abrir un codespace desde el botón verde de "código".
 ### 3. Instalar dependencias
+Escribir en la consola lo siguiente
 pip install -r requirements.txt
 ### 4. Ejecutar la aplicación
+Escribir en la consola lo siguiente: 
+python app/app.py
+
+o
+
 cd app
 python app.py
 
-Esto abrirá una interfaz interactiva en tu navegador (local) donde podrás:
+Esto abrirá una interfaz interactiva en la sección inferior "puertos", donde pulsando en el icono del globo la abrirá en tu navegador (local), donde podrás:
 Construir una secuencia de acordes.
 Obtener predicciones del siguiente acorde usando el modelo Transformer.
 Explorar las sugerencias Top-k en tiempo real.
