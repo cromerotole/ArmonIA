@@ -26,6 +26,7 @@ cd armonIA
 python -m venv .venv
 source .venv/bin/activate   # Linux/macOS
 .venv\Scripts\activate      # Windows
+Yo lo que hago es abrir un codespace desde el botón verde de "código".
 ### 3. Instalar dependencias
 pip install -r requirements.txt
 ### 4. Ejecutar la aplicación
