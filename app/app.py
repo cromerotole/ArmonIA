@@ -140,17 +140,54 @@ def predict_topk_with_interval(seq_orig:List[str], k:int=10, temperature:float=1
     return list(zip(chords_orig, pr))
 
 # ------------------ UI (réplica visual 2x5 + barra con separadores) ------------------
-ROOT_DISPLAY = [
-    ("C (Do)","C"), ("C# (Do#)","C#"), ("Db (Reb)","Db"),
-    ("D (Re)","D"), ("D# (Re#)","D#"), ("Eb (Mib)","Eb"),
-    ("E (Mi)","E"), ("F (Fa)","F"), ("F# (Fa#)","F#"), ("Gb (Solb)","Gb"),
-    ("G (Sol)","G"), ("G# (Sol#)","G#"), ("Ab (Lab)","Ab"),
-    ("A (La)","A"), ("A# (La#)","A#"), ("Bb (Sib)","Bb"),
-    ("B (Si)","B")
+# === Raíces unificadas (enarmónicos) ===
+ROOT_OPTIONS = [
+    "C (Do)",
+    "C#/Db (Do#/Reb)",
+    "D (Re)",
+    "D#/Eb (Re#/Mib)",
+    "E (Mi)",
+    "F (Fa)",
+    "F#/Gb (Fa#/Solb)",
+    "G (Sol)",
+    "G#/Ab (Sol#/Lab)",
+    "A (La)",
+    "A#/Bb (La#/Sib)",
+    "B (Si)"
 ]
-VARIANTS = [("mayor",""), ("menor","m"), ("7","7"), ("maj7","maj7"),
-            ("sus2","sus2"), ("sus4","sus4"), ("add9","add9"), ("6","6")]
-
+# Etiqueta unificada -> raíz canónica que usará el modelo (preferimos sostenidos)
+ROOT_LABEL_TO_CANON = {
+    "C (Do)": "C",
+    "C#/Db (Do#/Reb)": "C#",
+    "D (Re)": "D",
+    "D#/Eb (Re#/Mib)": "D#",
+    "E (Mi)": "E",
+    "F (Fa)": "F",
+    "F#/Gb (Fa#/Solb)": "F#",
+    "G (Sol)": "G",
+    "G#/Ab (Sol#/Lab)": "G#",
+    "A (La)": "A",
+    "A#/Bb (La#/Sib)": "A#",
+    "B (Si)": "B",
+}
+# === Variantes (diccionario exacto y ordenado) ===
+# Orden: mayor, m, 7, maj7, dim, dim7, aug, add9, madd9
+VARIANTS = [
+    ("mayor",  ""),     # mayor -> sin sufijo
+    ("m",      "m"),    # menor
+    ("7",      "7"),
+    ("m7",     "m7"),
+    ("maj7",   "maj7"),
+    ("dim",    "dim"),
+    ("dim7",   "dim7"),
+    ("aug",    "aug"),
+    ("add9",   "add9"),
+    ("madd9",  "madd9"),
+    ("sus2",   "sus2"),
+    ("sus4",   "sus4"),
+    ("msus2",  "msus2"),
+    ("msus4",  "msus4")
+]
 def render_seq_bar(seq): return " | ".join(seq) if seq else ""
 
 def medals_topk(chords_probs):
@@ -169,8 +206,10 @@ def labels_topk(seq, temp, key_interval):
     return medals_topk(top), top
 
 def add_by_dropdown(seq, key_interval, root_label, var_label, temp):
-    root = dict(ROOT_DISPLAY)[root_label]; suf = dict(VARIANTS)[var_label]
+    root = ROOT_LABEL_TO_CANON[root_label]   # usa la raíz canónica (C#, F#, etc.)
+    suf  = dict(VARIANTS)[var_label]
     chord = f"{root}{suf}"
+
     seq2 = seq + [chord]
     key2 = VAL[ExtChord(chord).root] if key_interval is None else key_interval
     labels, top = labels_topk(seq2, temp, key2)
@@ -230,8 +269,9 @@ with gr.Blocks(title="armonIA — Chord Prediction") as demo:
     with gr.Row():
         # Izquierda: selects + acciones
         with gr.Column(scale=6):
-            root_dd = gr.Dropdown([r for r,_ in ROOT_DISPLAY], value="C (Do)", label="Raíz / Root")
-            var_dd  = gr.Dropdown([v for v,_ in VARIANTS],   value="mayor",  label="Variante / Quality")
+            root_dd = gr.Dropdown(ROOT_OPTIONS, value="C (Do)", label="Raíz / Root")
+            var_dd  = gr.Dropdown([v for v,_ in VARIANTS], value="mayor", label="Variante / Quality")
+
             with gr.Row():
                 btn_add = gr.Button("Añadir / Add", variant="primary")
                 btn_pop = gr.Button("Borrar / Undo")
